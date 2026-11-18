@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grand Theft Vibe: 5 Chapters of Chaos</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="game-root">
+    <canvas id="game-canvas"></canvas>
+
+    <!-- ============ HUD ============ -->
+    <div id="hud" class="hidden">
+      <!-- bottom-left radar -->
+      <div id="radar-wrap">
+        <canvas id="radar" width="320" height="180"></canvas>
+        <div id="status-bars">
+          <div class="bar health"><div id="bar-health"></div></div>
+          <div class="bar armor"><div id="bar-armor"></div></div>
+          <div class="bar ability"><div id="bar-ability"></div></div>
+        </div>
+      </div>
+
+      <!-- top-right status -->
+      <div id="status-right">
+        <div id="wanted-stars"></div>
+        <div id="cash">$00000000</div>
+        <div id="cash-delta"></div>
+        <div id="weapon-readout"><span id="weapon-name">PISTOL</span> <span id="ammo">12 / 60</span></div>
+      </div>
+
+      <!-- top-left notifications -->
+      <div id="notifications"></div>
+
+      <!-- top-center radio popup -->
+      <div id="radio-popup" class="hidden"></div>
+
+      <!-- objective -->
+      <div id="objective" class="hidden"></div>
+
+      <!-- subtitles -->
+      <div id="subtitles"></div>
+
+      <!-- center prompt -->
+      <div id="big-prompt" class="hidden"></div>
+
+      <!-- special bars (self-esteem, calories, RC timer, hood fire) -->
+      <div id="special-bar" class="hidden">
+        <div id="special-label"></div>
+        <div id="special-track"><div id="special-fill"></div></div>
+      </div>
+
+      <!-- crosshair -->
+      <div id="crosshair" class="hidden">+</div>
+
+      <!-- wheels -->
+      <div id="wheel-overlay" class="hidden">
+        <div id="wheel-title"></div>
+        <div id="wheel"></div>
+        <div id="wheel-hint">release to select · mouse to choose</div>
+      </div>
+
+      <!-- phone -->
+      <div id="phone" class="hidden">
+        <div id="phone-screen">
+          <div id="phone-header">iFruit</div>
+          <div id="phone-body"></div>
+        </div>
+      </div>
+
+      <!-- order minigame -->
+      <div id="order-game" class="hidden">
+        <div id="order-title">CLUCKIN' BELL — MEGA ORDER</div>
+        <div id="order-quote"></div>
+        <div id="order-items"></div>
+        <div id="order-calories">0 kcal</div>
+      </div>
+
+      <!-- screen states -->
+      <div id="screen-state" class="hidden">
+        <div id="screen-banner"></div>
+        <div id="screen-sub"></div>
+        <div id="medal-list"></div>
+        <button id="screen-btn" class="hidden">CONTINUE</button>
+      </div>
+
+      <!-- vignette / filters -->
+      <div id="vignette"></div>
+      <div id="flash"></div>
+      <div id="damage-flash"></div>
+    </div>
+
+    <!-- ============ MENU ============ -->
+    <div id="menu">
+      <div id="menu-inner">
+        <h1 id="title">GRAND THEFT VIBE</h1>
+        <div id="tagline">5 Chapters of Chaos — «Мы просто вайбим пацаны»</div>
+        <div id="chapter-list"></div>
+        <div id="menu-controls">
+          WASD move/drive · SPACE handbrake/hop · F enter/exit · RMB aim + LMB shoot ·
+          SHIFT focus · V sky-cam · TAB weapons · R radio · E horn · ALT switch · type HESOYAM
+        </div>
+      </div>
+    </div>
+
+    <div id="loading">LOADING LOS SANTOS…</div>
+  </div>
+  <script>
+    window.addEventListener('error', e => {
+      const l = document.getElementById('loading');
+      if (l) { l.classList.remove('hidden'); l.style.color = '#ff5a5a'; l.style.fontSize = '16px'; l.textContent = 'BOOT ERROR: ' + (e.message || e.error); }
+    });
+  </script>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
