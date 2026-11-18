@@ -1,6 +1,6 @@
 // Rockstar HUD: rotating radar + GPS, stars, cash, wheels, subtitles, screen states.
 import { S, WEAPONS, on, CHAR_COLORS } from './state.js';
-import { down } from './input.js';
+import { down, mouse } from './input.js';
 import { STATIONS, setRadio, setWheelOpen, sfx, radioPlaying } from './audio.js';
 import { TILE, GRID, tileCenter, isRoadTile, LOC } from './world.js';
 
@@ -9,7 +9,7 @@ const el = {
   hud: $('hud'), radar: $('radar'), barH: $('bar-health'), barA: $('bar-armor'), barB: $('bar-ability'),
   healthBar: document.querySelector('.bar.health'),
   stars: $('wanted-stars'), cash: $('cash'), cashDelta: $('cash-delta'),
-  weaponName: $('weapon-name'), ammo: $('ammo'),
+  weaponName: $('weapon-name'), ammo: $('ammo'), controlsHint: $('controls-hint'),
   notif: $('notifications'), radioPopup: $('radio-popup'), objective: $('objective'),
   subs: $('subtitles'), bigPrompt: $('big-prompt'),
   special: $('special-bar'), specialLabel: $('special-label'), specialFill: $('special-fill'),
@@ -339,7 +339,17 @@ export const hud = {
     const w = WEAPONS[S.weapon];
     el.weaponName.textContent = w.name;
     el.ammo.textContent = `${S.ammo[S.weapon].clip} / ${S.ammo[S.weapon].total}`;
-    el.crosshair.classList.toggle('hidden', !player.aiming && !(player.vehicle && player.vehicle.kind === 'tank'));
+    const v = player.vehicle;
+    const showCross = !v || v.kind === 'tank';
+    el.crosshair.classList.toggle('hidden', !showCross);
+    if (showCross) { el.crosshair.style.left = mouse.x + 'px'; el.crosshair.style.top = mouse.y + 'px'; }
+    el.crosshair.classList.toggle('aiming', player.aiming);
+    const hint = !v
+      ? 'LMB shoot at cursor · RMB aim · 1/2/3 or TAB weapon · F enter vehicle'
+      : v.kind === 'tank'
+        ? 'Mouse aim turret · LMB fire cannon · F exit'
+        : 'LMB drive-by (shoots forward) · 1/2/3 weapon · SPACE handbrake/hop · F exit';
+    if (el.controlsHint.textContent !== hint) el.controlsHint.textContent = hint;
     this.updateWheel();
     this.drawRadar(player, traffic);
   },

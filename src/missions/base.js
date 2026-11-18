@@ -34,7 +34,11 @@ export class Chapter {
     return m;
   }
   addMesh(m) { this.scene.add(m); this.meshes.push(m); return m; }
-  addVehicle(v) { this.vehicles.push(v); return v; }
+  addVehicle(v) {
+    if (!v.mesh.parent) this.scene.add(v.mesh);
+    this.vehicles.push(v);
+    return v;
+  }
   obj(text, target = null) { hud.setObjective(text, target); }
   prompt(t) { hud.prompt(t); }
 
@@ -108,7 +112,7 @@ export class MissionManager {
       const v = this.ctx.player.vehicle;
       v.driver = null;
       this.ctx.player.vehicle = null;
-      this.ctx.player.mesh.visible = true;
+      this.ctx.player.leaveSeat(v);
     }
     setRadio(-1);
     S.radio = -1;

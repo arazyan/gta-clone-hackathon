@@ -7,6 +7,9 @@ import { sfx } from './audio.js';
 import { allVehicles } from './vehicles.js';
 
 const _v = new THREE.Vector3();
+// player model offset in vehicle-local space (front is +z, left is +x)
+const SEAT_CAR = new THREE.Vector3(0.42, 0.05, -0.15);
+const SEAT_BIKE = new THREE.Vector3(0, 0.38, -0.3);
 export class Player {
   constructor(scene, world, fx, traffic) {
     this.scene = scene; this.world = world; this.fx = fx; this.traffic = traffic;
@@ -28,7 +31,8 @@ export class Player {
     this.scene.remove(this.mesh);
     this.mesh = makePed(shirt, { cap, mask: name === 'MICHAEL' || name === 'TREVOR' });
     this.scene.add(this.mesh);
-    this.mesh.visible = !this.vehicle;
+    this.mesh.visible = true;
+    if (this.vehicle) this.syncSeat();
   }
 
   teleport(x, z, heading = 0) {
@@ -62,10 +66,12 @@ export class Player {
       else if (S.wanted < 1 && Math.random() < 0.5) setWanted(1);
       this.traffic.scarePeds(v.pos.x, v.pos.z);
     }
+    if (this.vehicle && this.vehicle !== v) this.setCabGlass(this.vehicle, false);
     v.driver = 'player';
     v.ai = null;
     this.vehicle = v;
-    this.mesh.visible = false;
+    this.setCabGlass(v, true);
+    this.syncSeat();
     sfx.pickup();
     window.dispatchEvent(new CustomEvent('gtv-enter-vehicle', { detail: v }));
   }
@@ -85,8 +91,58 @@ export class Player {
     }
     v.driver = null;
     this.vehicle = null;
-    this.mesh.visible = true;
+    this.leaveSeat(v);
     window.dispatchEvent(new CustomEvent('gtv-exit-vehicle', { detail: v }));
+  }
+
+  // Make the cabin see-through while the player drives, so the driver is visible.
+  setCabGlass(v, on) {
+    const roof = v.mesh.userData.roof;
+    if (!roof) return;
+    if (on) {
+      if (!roof.userData.origMat) {
+        roof.userData.origMat = roof.material;
+        roof.material = roof.material.clone();
+        roof.material.opacity = 0.3;
+      }
+    } else if (roof.userData.origMat) {
+      roof.material.dispose();
+      roof.material = roof.userData.origMat;
+      roof.userData.origMat = null;
+    }
+  }
+
+  // Seat the player model on/in the current vehicle (call after vehicle.update).
+  syncSeat() {
+    const v = this.vehicle;
+    if (!v) return;
+    const m = this.mesh, ud = m.userData;
+    const bike = v.kind === 'bmx' || v.kind === 'sanchez';
+    m.visible = v.kind !== 'tank' && !v.dead;
+    const off = bike ? SEAT_BIKE : SEAT_CAR;
+    m.scale.setScalar(bike ? 1 : 0.85);
+    m.position.copy(off).applyQuaternion(v.mesh.quaternion).add(v.mesh.position);
+    m.quaternion.copy(v.mesh.quaternion);
+    if (bike) {
+      // pedalling legs, hands on the bars
+      this.walkPhase += v.forwardSpeed * 0.02;
+      const p = Math.sin(this.walkPhase * 6) * 0.45;
+      ud.legL.rotation.x = -0.9 + p; ud.legR.rotation.x = -0.9 - p;
+      ud.armL.rotation.x = ud.armR.rotation.x = -1.0;
+    } else {
+      ud.legL.rotation.x = ud.legR.rotation.x = -1.4;
+      ud.armL.rotation.x = ud.armR.rotation.x = -1.1;
+    }
+  }
+
+  leaveSeat(v) {
+    if (v) this.setCabGlass(v, false);
+    const m = this.mesh, ud = m.userData;
+    m.visible = true;
+    m.scale.setScalar(1);
+    m.rotation.set(0, this.heading, 0);
+    m.position.set(this.pos.x, 0, this.pos.z);
+    ud.legL.rotation.x = ud.legR.rotation.x = ud.armL.rotation.x = ud.armR.rotation.x = 0;
   }
 
   // aim point from camera ray onto plane y=1.2
@@ -244,6 +300,10 @@ export class Player {
     this.updateAim(camera);
     this.aiming = mouse.rmb && !this.vehicle;
 
+    if (allowInput) {
+      ['Digit1', 'Digit2', 'Digit3'].forEach((k, i) => { if (down(k)) S.weapon = i; });
+    }
+
     if (allowInput && down('KeyF') && this.enterCooldown <= 0) {
       this.enterCooldown = 0.4;
       if (this.vehicle) this.exitVehicle();
@@ -256,7 +316,7 @@ export class Player {
       // drive-by / tank fire
       if (mouse.lmb) {
         if (v.kind === 'tank') { if (this.fireCooldown <= 0) this.shoot(); }
-        else if (S.weapon === 1 || S.weapon === 2) this.shoot();
+        else this.shoot();
       }
       // horn
       if (down('KeyE') && this.enterCooldown <= -0.2) {
@@ -288,8 +348,8 @@ export class Player {
     if (mx || mz) {
       const len = Math.hypot(mx, mz);
       const sin = Math.sin(camYaw), cos = Math.cos(camYaw);
-      const wx = (mx * cos + mz * sin) / len;
-      const wz = (-mx * sin + mz * cos) / len;
+      const wx = (-mx * cos + mz * sin) / len;
+      const wz = (mx * sin + mz * cos) / len;
       this.pos.x += wx * speed * dt;
       this.pos.z += wz * speed * dt;
       if (!this.aiming) this.heading = Math.atan2(wx, wz);

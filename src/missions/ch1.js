@@ -49,6 +49,7 @@ export class Ch1 extends Chapter {
 
   setStep(n) {
     this.step = n;
+    const { world } = this;
     const bk = LOC.bank;
     if (n === 0) this.obj('<b>HERD THE HOSTAGES:</b> Aim (RMB) at them to scare them into the blue closet marker. Do NOT shoot.', world.closetPos);
     if (n === 1) { this.obj('<b>THE VAULT:</b> Press <b>T</b> to open your iFruit and detonate the thermite charge.', { x: bk.x, z: bk.z - 9 }); this.prompt('[T] OPEN iFruit PHONE'); }

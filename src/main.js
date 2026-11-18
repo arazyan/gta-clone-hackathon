@@ -132,7 +132,7 @@ window.addEventListener('gtv-explosion', e => {
 window.addEventListener('gtv-vehicle-exploded', e => {
   if (e.detail === player.vehicle) {
     player.vehicle = null;
-    player.mesh.visible = true;
+    player.leaveSeat(e.detail);
     damagePlayer(999, 'explosion');
   }
 });
@@ -200,6 +200,7 @@ function loop(now) {
   if (player.vehicle && !player.vehicle.dead) {
     player.vehicle.update(sdt, allowInput ? driveInput() : { throttle: 0, steer: 0, handbrake: false }, world, fx);
   }
+  player.syncSeat();
   player.updateProjectiles(sdt);
 
   // world systems

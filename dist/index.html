@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Grand Theft Vibe: 5 Chapters of Chaos</title>
-  <script type="module" crossorigin src="/assets/index-B8XJRJk8.js"></script>
-  <link rel="stylesheet" crossorigin href="/assets/index-VeL9ZSr-.css">
+  <script type="module" crossorigin src="/assets/index-DGKrIVCr.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-Dv-8Ovqn.css">
 </head>
 <body>
   <div id="game-root">
@@ -54,6 +54,7 @@
 
       <!-- crosshair -->
       <div id="crosshair" class="hidden">+</div>
+      <div id="controls-hint"></div>
 
       <!-- wheels -->
       <div id="wheel-overlay" class="hidden">
@@ -107,5 +108,11 @@
 
     <div id="loading">LOADING LOS SANTOS…</div>
   </div>
+  <script>
+    window.addEventListener('error', e => {
+      const l = document.getElementById('loading');
+      if (l) { l.classList.remove('hidden'); l.style.color = '#ff5a5a'; l.style.fontSize = '16px'; l.textContent = 'BOOT ERROR: ' + (e.message || e.error); }
+    });
+  </script>
 </body>
 </html>
