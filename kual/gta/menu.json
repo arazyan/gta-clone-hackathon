@@ -1,0 +1,4 @@
+{"items":[{"name":"Mini GTA","items":[
+ {"name":"Play","action":"./run.sh","exitmenu":true},
+ {"name":"Play (stop Kindle UI)","action":"./run.sh stopui","exitmenu":true},
+ {"name":"Kill game","action":"killall gta_kindle; for p in $(pidof reader.lua) $(pidof cvm); do kill -CONT $p; done","exitmenu":true}]}]}

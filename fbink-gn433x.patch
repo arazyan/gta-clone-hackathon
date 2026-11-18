@@ -1,0 +1,12 @@
+diff --git a/fbink_device_id.c b/fbink_device_id.c
+index 955358e..2575f83 100644
+--- a/fbink_device_id.c
++++ b/fbink_device_id.c
+@@ -269,6 +269,7 @@ static bool
+ 			strtcpy(deviceQuirks.deviceCodename, "Stinger", sizeof(deviceQuirks.deviceCodename));
+ 			strtcpy(deviceQuirks.devicePlatform, "Zelda", sizeof(deviceQuirks.devicePlatform));
+ 			return true;
++		case 0xC7Fu:    // hackathon PW (GN433X)
+ 		case 0x690u:    // PW5
+ 		case 0x700u:
+ 		case 0x6FFu:
